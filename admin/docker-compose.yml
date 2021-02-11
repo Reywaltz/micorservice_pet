@@ -1,0 +1,30 @@
+version: '3.9'
+services:
+  backend:
+    build: .
+    command: 'python3.9 manage.py runserver 0.0.0.0:8000'
+    ports:
+      - 8000:8000
+    volumes:
+      - .:/app
+    depends_on:
+      - db
+  
+  db:
+    image: postgres:latest
+    restart: always
+    environment:
+      POSTGRES_USER: local_admin
+      POSTGRES_PASSWORD: local_password
+      POSTGRES_DB: local_db
+    volumes:
+      - /private/var/lib/postgresql:/var/lib/postgresql
+    ports: 
+      - "5432:5432"
+
+  queue:
+    build:
+      context: .
+    command: 'python3.9 consumer.py'
+    depends_on:
+      - db
